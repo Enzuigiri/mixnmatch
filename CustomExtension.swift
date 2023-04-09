@@ -45,3 +45,19 @@ extension View {
     }
 }
 
+//extension Color {
+//    func toHexString() -> String {
+//        guard let components = self.cgColor?.components, components.count >= 3 else {
+//            return "000000"
+//        }
+//
+//        let r = Float(components[0])
+//        let g = Float(components[1])
+//        let b = Float(components[2])
+//
+//        let hex = String(format: "%02lX%02lX%02lX", lroundf(r * 255), lroundf(g * 255), lroundf(b * 255))
+//
+//        return hex
+//    }
+//}
+
