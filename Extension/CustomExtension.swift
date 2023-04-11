@@ -8,6 +8,45 @@
 import SwiftUI
 
 
+extension Color {
+    func toUIColor() -> UIColor {
+        let uiColor = UIColor(self)
+        return uiColor
+    }
+    
+    func toHSB() -> (h: CGFloat, s: CGFloat, b: CGFloat) {
+        let uiColor = self.toUIColor()
+        var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0, alpha: CGFloat = 0
+        uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
+        return (h: hue, s: saturation, b: brightness)
+    }
+    
+    func toHSBArray() -> [CGFloat] {
+        let uiColor = self.toUIColor()
+        var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0, alpha: CGFloat = 0
+        uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
+        return [hue, saturation, brightness]
+    }
+    
+    
+}
+
+
+extension Color {
+    init(hueSaturationBrightness: [CGFloat]) {
+        guard hueSaturationBrightness.count == 3 else {
+            fatalError("Array must have 3 elements: hue, saturation, brightness")
+        }
+        
+        let hue = hueSaturationBrightness[0]
+        let saturation = hueSaturationBrightness[1]
+        let brightness = hueSaturationBrightness[2]
+        
+        self.init(hue: hue, saturation: saturation, brightness: brightness)
+    }
+}
+
+
 public struct ColorBlended: ViewModifier {
   fileprivate var color: Color
   

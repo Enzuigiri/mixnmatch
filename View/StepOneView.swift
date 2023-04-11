@@ -8,17 +8,18 @@
 import SwiftUI
 
 struct StepOneView: View {
-    func getSelectedColor() -> Binding<Color>{
+    @Binding var currentOutfitIndex : Int
+    func getSelectedColor() -> Binding<[CGFloat]>{
         if(selectedItem == "Pants"){
-            return $pantsColor
+            return $outfitModel.pantsColor
         } else if (selectedItem == "Shirt"){
-            return $shirtColor
+            return $outfitModel.shirtColor
         } else if (selectedItem == "Outer"){
-            return $outerColor
+            return $outfitModel.outerColor
         } else if (selectedItem == "Hat"){
-            return $hatColor
+            return $outfitModel.hatColor
         } else if (selectedItem == "Shoes"){
-            return $shoesColor
+            return $outfitModel.shoesColor
         }
         else {
             return $selectedColor
@@ -28,15 +29,15 @@ struct StepOneView: View {
     
     func setSelectedItem(item: String) -> Void{
         if(selectedItem == "Pants"){
-             selectedPantsItem = item
+            outfitModel.pants = item
         } else if (selectedItem == "Shirt"){
-             selectedShirtItem = item
+            outfitModel.shirt = item
         } else if (selectedItem == "Outer"){
-             selectedOuterItem = item
+            outfitModel.outer = item
         } else if (selectedItem == "Hat"){
-             selectedHatItem = item
+            outfitModel.hat = item
         } else if (selectedItem == "Shoes"){
-             selectedShoesItem = item
+            outfitModel.shoes = item
         }
         else {
             selectedItem = ""
@@ -45,15 +46,15 @@ struct StepOneView: View {
     
     func getSelectedItem() -> Binding<String>{
         if(selectedItem == "Pants"){
-            return $selectedPantsItem
+            return $outfitModel.pants
         } else if (selectedItem == "Shirt"){
-            return $selectedShirtItem
+            return $outfitModel.shirt
         } else if (selectedItem == "Outer"){
-            return $selectedOuterItem
+            return $outfitModel.outer
         } else if (selectedItem == "Hat"){
-            return $selectedHatItem
+            return $outfitModel.hat
         } else if (selectedItem == "Shoes"){
-            return $selectedShoesItem
+            return $outfitModel.shoes
         }
         else {
             return $selectedItem
@@ -61,7 +62,6 @@ struct StepOneView: View {
     }
     
     func getSelectedItemInventory(){
-        
         if(selectedItem == "Pants"){
             inventory =  pantsItems
         } else if (selectedItem == "Shirt"){
@@ -79,26 +79,18 @@ struct StepOneView: View {
         print("triggered", inventory)
     }
     
-    let baseColor = Color.red
     
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
-    @State private var selectedColor: Color = Color(.gray)
+    @State private var selectedColor: [CGFloat] = Color(.gray).toHSBArray()
     @State private var magnification: CGFloat = 1.0
     @State private var scale: CGFloat = 1.0
-    
-    @State private var offset = CGSize.zero
-    @State private var offsetAccumulated = CGSize.zero
-    
-    
+    //    @State private var offset: CGSize = CGSize.zero
+    @State private var offsetX : CGFloat = CGFloat.zero
+    @State private var offsetY : CGFloat = CGFloat.zero
+    @GestureState private var offset: CGSize = .zero
+    //    @State private var offsetAccumulated = CGSize.zero
     @State private var selectedItem : String = ""
-    
-    @State private var shirtColor: Color = Color(.black)
-    @State private var pantsColor: Color = Color(.gray)
-    @State private var outerColor: Color = Color(.darkGray)
-    @State private var hatColor: Color = Color(.darkGray)
-    @State private var shoesColor: Color = Color(.darkGray)
-    
     
     private let shirtItems: [String] = ["outfit-none", "shirt-base"]
     private let pantsItems: [String] = ["outfit-none", "pants-short"]
@@ -107,17 +99,8 @@ struct StepOneView: View {
     private let shoesItems: [String] = ["outfit-none"]
     @State private var inventory: [String] = []
     
-    @State private var selectedShirtItem = "shirt-base"
-    @State private var selectedPantsItem = "pants-short"
-    @State private var selectedOuterItem = "outfit-none"
-    @State private var selectedHatItem = "outfit-none"
-    @State private var selectedShoesItem = "outfit-none"
-    
-    
-    
-    
-    
-    
+    //    @ObservedObject var outfitModel = outfitModel()
+    @ObservedObject var outfitModel = OutfitModel(id: nil)
     
     var body: some View {
         NavigationView(){
@@ -142,7 +125,7 @@ struct StepOneView: View {
                             Spacer()
                             Text("Step 1 : Create Pattern")
                             Spacer()
-                            NavigationLink(destination : StepTwoView()){
+                            NavigationLink(destination : StepTwoView(outfitModel: outfitModel)){
                                 Text("Next")
                                     .padding(.horizontal, 32)
                                     .frame(height: 60)                            .background(Color("layer1"))
@@ -153,112 +136,38 @@ struct StepOneView: View {
                             }
                             
                         }
-                        var charHeightBound = heightBound - 160
-                        ZStack(alignment: .center){
-                            Image("base-body")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .padding()
-                            //pants
-                            Image(selectedPantsItem)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .padding()
-                                .blending(color: pantsColor)
-                            //shirt
-                            Image(selectedShirtItem)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .padding()
-                                .blending(color: shirtColor)
-                            //outer
-                            Image(selectedOuterItem)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .padding()
-                                .blending(color: outerColor)
-                            //hat
-                            Image(selectedHatItem)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .padding()
-                                .blending(color: outerColor)
-                            Image(selectedShoesItem)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .padding()
-                                .blending(color: outerColor)
-                            
-                            
-                            
-                            
-                        }
-                        .frame(width: widthBound, height: heightBound - 160)
-                        
-                        .scaleEffect(magnification)
-                        
-                        .offset(offset)
-                        .scaleEffect(magnification)
-                        .gesture(
-                            DragGesture()
-                                .onChanged{
-                                    gesture in
-                                    offset = gesture.translation
-                                    print(offset)
-                                }
-                                .onEnded{
-                                    value in
-                                    offset = offset
-
-                                }
-                            
-                        ).gesture(
-                            MagnificationGesture()
-                                .onChanged { value in
-                                    magnification = value
-                                }
-                        )
-                        
-                        
-                        
-                        
-                        HStack(alignment: .bottom){
-                            VStack(spacing: 0){
-                                Button(action: {
-                                    magnification = magnification + 0.1
-                                }) {
-                                    Text("+")
-                                        .frame(width: 60,height: 60)
-                                }
-                                .background(Color("layer1"))
-                                .foregroundColor(.black)
-                                .customCornerRadius(16, corners: [.topLeft, .topRight])
+                        AvatarView(outfitModel: outfitModel)
+                            .frame(width: widthBound, height: heightBound)
+                            .scaleEffect(magnification)
+                            .offset(CGSize(width: offsetX + offset.width, height:offsetY + offset.height))
+                            .scaleEffect(magnification)
+                            .gesture(
+                                DragGesture()
+                                    .updating($offset, body: { value, state, _ in
+                                        state = value.translation
+                                    })
+                                    .onEnded({ tes in
+                                        
+                                        offsetX += tes.location.x - tes.startLocation.x
+                                        offsetY += tes.location.y - tes.startLocation.y
+                                        print(offsetX, offsetY)
+                                        
+                                        
+                                    })
                                 
-                                Button(action: {
-                                    magnification = magnification - 0.1
-                                }) {
-                                    Text("-")
-                                        .frame(width: 60,height: 60)
-                                }.background(Color("layer2"))
-                                    .foregroundColor(.black)
-                                    .customCornerRadius(16, corners: [.bottomLeft, .bottomRight])
-                            }
-                            Spacer()
-                            HStack(alignment: .bottom, spacing: 0){
-                                Rectangle()
-                                    .foregroundColor(Color("layer1"))
-                                    .frame(width: 60,height: 60)
-                                    .cornerRadius(16)
-                                Rectangle()
-                                    .foregroundColor(Color("layer2"))
-                                    .frame(width: 60,height: 60)
-                                    .cornerRadius(16)
-                            }
-                        }
-                    }.frame(width: geometry.size.width/2 - 32 , height: geometry.size.height - 32)
-                    Spacer()
+                            ).gesture(
+                                MagnificationGesture()
+                                    .onChanged { value in
+                                        magnification = value
+                                    }
+                            )
+                        
+                        
+                    }
                     //right
                     VStack(spacing: 32){
+                        // ITEM NAVIGATION
+                        
                         //TYPE
                         VStack(){
                             //background
@@ -283,7 +192,7 @@ struct StepOneView: View {
                                                 .cornerRadius(16)
                                                 .foregroundColor(Color("layer2")).frame(width: (widthBound - 32)/3 - 8, height: (widthBound - 32)/3 - 8)
                                                 .padding(.horizontal, 16)
-                                                
+                                            
                                             Image("\(inventory[index])-icon")
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fit)
@@ -291,6 +200,8 @@ struct StepOneView: View {
                                             
                                         }.frame(width: (widthBound - 32)/3 - 8, height: (widthBound - 32)/3 - 8)
                                             .onTapGesture {
+                                                print(selectedItem)
+                                                print(inventory[index])
                                                 setSelectedItem(item: inventory[index])
                                             }
                                             .padding(.horizontal, 16)
@@ -303,10 +214,11 @@ struct StepOneView: View {
                         .background(Color("layer1"))
                         .frame(height: heightBound - 65 - 280  - 64)
                         .cornerRadius(24)
-                        // ITEM COLOR PICKER
-                        ColorPickerView(widthBound: widthBound, selectedColor: getSelectedColor(), selectedItem: selectedItem)
                         // ITEM NAVIGATION
                         ItemNavigationView(widthBound: widthBound, selectedItem: $selectedItem, inventory: $inventory, getSelectedItemInventory: getSelectedItemInventory)
+                        
+                        // ITEM COLOR PICKER
+                        ColorPickerView(widthBound: widthBound, selectedColor: getSelectedColor(), selectedItem: selectedItem)
                     }
                     .frame(width: widthBound, height: heightBound)
                 }
@@ -319,19 +231,22 @@ struct StepOneView: View {
 
 struct StepOneView_Previews: PreviewProvider {
     static var previews: some View {
-        StepOneView()
+        StepOneView(currentOutfitIndex: .constant(0))
     }
 }
 
 struct ColorPickerView: View {
     var widthBound: CGFloat
-    @Binding var selectedColor: Color
+    @Binding var selectedColor: [CGFloat]
+    @State var pickedColor: Color = Color.gray
     @State private var showColorGenerator: Bool = false
     var selectedItem: String
     
-    @State var swatchesColors : [Color] = ColorManager().allColors()
+    @State var swatchesColors : [Color] = ColorViewModel().allColors()
     
-    let colorManager = ColorManager()
+    let colorViewModel = ColorViewModel()
+    
+    @State var showConfirmation : Bool = false
     
     var body : some View {
         VStack(alignment : .leading){
@@ -353,7 +268,10 @@ struct ColorPickerView: View {
                     .frame(width: 180,height: 180)
                     .cornerRadius(100)
                     .overlay(
-                        ColorPicker("", selection: $selectedColor)
+                        ColorPicker("", selection: $pickedColor)
+                            .onChange(of: pickedColor, perform: { newValue in
+                                selectedColor = pickedColor.toHSBArray()
+                            })
                             .labelsHidden()
                             .opacity(1)
                             .scaleEffect(5)
@@ -364,26 +282,46 @@ struct ColorPickerView: View {
                         LazyHGrid(
                             rows: [GridItem(.adaptive(minimum: 24))],
                             spacing: 8
-                            //                                alignment: .center
+                            //                            alignment: .center
                         ){
                             ForEach(0..<swatchesColors.count, id: \.self){
                                 i in
                                 Rectangle()
+                                    .confirmationDialog("test", isPresented: $showConfirmation){
+                                        Button("Remove"){
+                                            colorViewModel.deleteColor(index: i)
+                                            swatchesColors = colorViewModel.allColors()
+                                        }
+                                    }
+                                //                                    .gesture(
+                                //                                        LongPressGesture(minimumDuration: 0.3)
+                                //                                            .onEnded{
+                                //                                                _ in
+                                //                                                showConfirmation = true
+                                //                                                print("lng", i)
+                                //                                            }
+                                //                                    )
+                                    .onTapGesture {
+                                        selectedColor = swatchesColors[i].toHSBArray()
+                                    }
                                     .foregroundColor(swatchesColors[i])
                                     .
-                                frame(width: 32, height: 32)
+                                frame(width: 36, height: 36)
                                     .cornerRadius(8)
-                                    .onTapGesture {
-                                        selectedColor = swatchesColors[i]
-                                    }
+                                
+                                
+                                
+                                
+                                
+                                
                             }
                         }
                     }
                     .frame(width: widthBound - 180 - 32)
                     HStack{
                         Button(action: {
-                            colorManager.saveColor(color: selectedColor)
-                            swatchesColors = colorManager.allColors()
+                            colorViewModel.saveColor(color: Color(hueSaturationBrightness: selectedColor))
+                            swatchesColors = colorViewModel.allColors()
                         }) {
                             Text("add to swatch")
                                 .frame(maxWidth: .infinity, maxHeight: 50)
@@ -392,7 +330,7 @@ struct ColorPickerView: View {
                         .foregroundColor(.black)
                         .cornerRadius(16)
                         Button(action: {
-                            
+                            print("toggled")
                             showColorGenerator.toggle()
                         }) {
                             Text("color harmony")
@@ -402,7 +340,7 @@ struct ColorPickerView: View {
                         .foregroundColor(.black)
                         .cornerRadius(16)
                         .sheet(isPresented: $showColorGenerator){
-                            GenerateColorView(baseColor: selectedColor, swatchesColor: $swatchesColors)
+                            GenerateColorView(baseColor: Color(hueSaturationBrightness: selectedColor), swatchesColor: $swatchesColors)
                         }
                     }
                     
@@ -419,7 +357,7 @@ struct ItemNavigationView : View {
     var widthBound: CGFloat
     @Binding var selectedItem: String
     @Binding var inventory: [String]
-     var getSelectedItemInventory: () -> Void
+    var getSelectedItemInventory: () -> Void
     
     var body: some View {
         HStack(spacing: 0){

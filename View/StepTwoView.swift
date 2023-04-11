@@ -47,10 +47,17 @@ struct ItemContainer: View {
 }
 
 struct StepTwoView: View {
+    @ObservedObject var outfitModel: OutfitModel
+//    @ObservedObject var characterViewModel: CharacterViewModel
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
 
     @State private var selectedColor: Color = Color(.gray)
     @State private var magnification: CGFloat = 1.0
+    @State private var scale: CGFloat = 1.0
+    @State private var offset = CGSize.zero
+    @State private var offsetAccumulated = CGSize.zero
+    
+    
     var body: some View {
         
         NavigationView(){
@@ -73,9 +80,9 @@ struct StepTwoView: View {
                             }
                             
                             Spacer()
-                            Text("Step 2 : Insert Item")
+                            Text("Step 2 : Insert the Item You Have")
                             Spacer()
-                            NavigationLink(destination : StepThreeView()){
+                            NavigationLink(destination : StepThreeView(outfitModel: outfitModel)){
                                 Text("Next")
                                     .padding(.horizontal, 32)
                                     .frame(height: 60)
@@ -88,36 +95,31 @@ struct StepTwoView: View {
                             
                         }
                         Spacer()
-                        ZStack{
-                            Image("vector")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .padding()
-                                .blending(color: selectedColor)
-                                .scaleEffect(magnification)
-                        }
+                        AvatarView(outfitModel: outfitModel)
                         .frame(width: widthBound)
-                        Spacer()
-                        VStack(alignment: .leading, spacing: 0){
-                            Button(action: {
-                                magnification = magnification + 0.1
-                            }) {
-                                Text("+")
-                                    .frame(width: 60,height: 60)
-                            }
-                            .background(Color("layer1"))
-                            .foregroundColor(.black)
-                            .customCornerRadius(16, corners: [.topLeft, .topRight])
+                        .scaleEffect(magnification)
+                        .offset(offset)
+                        .scaleEffect(magnification)
+                        .gesture(
+                            DragGesture()
+                                .onChanged{
+                                    gesture in
+                                    offset = gesture.translation
+                                    print(offset)
+                                }
+                                .onEnded{
+                                    value in
+                                    offset = offset
+
+                                }
                             
-                            Button(action: {
-                                magnification = magnification - 0.1
-                            }) {
-                                Text("-")
-                                    .frame(width: 60,height: 60)
-                            }.background(Color("layer2"))
-                                .foregroundColor(.black)
-                                .customCornerRadius(16, corners: [.bottomLeft, .bottomRight])
-                        }
+                        ).gesture(
+                            MagnificationGesture()
+                                .onChanged { value in
+                                    magnification = value
+                                }
+                        )
+                       
                         ItemContainer(
                             heightBound: heightBound, widthBound: widthBound, title: "Shoes Item")
                     }.frame(width: geometry.size.width/2 - 32 , height: geometry.size.height - 32)
@@ -143,6 +145,6 @@ struct StepTwoView: View {
 
 struct StepTwoView_Previews: PreviewProvider {
     static var previews: some View {
-        StepTwoView()
+        StepTwoView(outfitModel: OutfitModel(id: nil))
     }
 }

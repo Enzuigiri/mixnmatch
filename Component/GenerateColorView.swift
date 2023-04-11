@@ -12,7 +12,7 @@ struct GeneratedPalleteView : View {
     let colors : [Color]
     let title: String
     
-    let colorManager = ColorManager()
+    let colorViewModel = ColorViewModel()
     
     var body: some View{
         GeometryReader{
@@ -51,8 +51,8 @@ struct GeneratedPalleteView : View {
                                 .offset(y: 30)
                     }.onTapGesture {
                         
-                        colorManager.saveColors(colors: colors)
-                        swatchesColor = colorManager.allColors()
+                        colorViewModel.saveColors(colors: colors)
+                        swatchesColor = colorViewModel.allColors()
                     }
                 }
             }

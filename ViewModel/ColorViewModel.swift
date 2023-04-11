@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-class ColorManager {
-    private let accessKey = "swatchessaaaaa"
+class ColorViewModel {
+    private let accessKey = "swatchessaaaaass"
     private let userDefault = UserDefaults.standard
     private var savedColors: [[CGFloat]] = []
     
@@ -25,19 +25,31 @@ class ColorManager {
         if let savedColors = userDefault.array(forKey: accessKey) as? [[CGFloat]] {
             self.savedColors = savedColors
         }
-        return convertToColor(floatColors: savedColors).reversed()
+        return convertToColor(floatColors: savedColors)
+    }
+    
+    private func refresh() -> Void {
+        userDefault.set(savedColors, forKey: accessKey)
+    }
+    
+    func deleteColor(index: Int) -> Void {
+        print("target", index)
+        savedColors.remove(at: index)
+        refresh()
     }
     
     func saveColor(color: Color){
         savedColors.append(convertToHSBArray(color: color))
-        userDefault.set(savedColors, forKey: accessKey)
+        refresh()
+//        userDefault.set(savedColors, forKey: accessKey)
     }
     
     func saveColors(colors: [Color]){
         for color in colors {
             savedColors.append(convertToHSBArray(color: color))
         }
-        userDefault.set(savedColors, forKey: accessKey)
+        refresh()
+//        userDefault.set(savedColors, forKey: accessKey)
     }
     
     private func convertToHSBArray(color: Color) ->  [CGFloat] {

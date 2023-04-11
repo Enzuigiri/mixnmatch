@@ -37,12 +37,17 @@ struct PatternTypePicker : View {
 }
 
 struct ContentView: View {
+    
     var cardLength: Int = 5
     @State var selected = 0
     
     @State private var type : Int = 0
+    var outfitViewModel : OutfitViewModel = OutfitViewModel()
+    @State var currentOutfitIndex : Int = OutfitViewModel.shared.outfits.count
+
     
     var body: some View {
+        var _ = print("current", currentOutfitIndex)
         NavigationView(){
             GeometryReader{
                 geometry in
@@ -78,49 +83,53 @@ struct ContentView: View {
                     
                     ScrollView(.horizontal){
                         HStack(spacing: 32){
-                            ForEach(0..<5){
-                                index in
-                                if(index == 0){
-                                    NavigationLink(destination: StepOneView()){
-                                        ZStack{
-                                            Rectangle()
-                                                .frame(width: 500)
-                                                .cornerRadius(24)
-                                                .foregroundColor(.gray).opacity(0.3)
-                                            Circle()
-                                                .frame(width: 350, height: 350)
-                                                .foregroundColor(.gray)
-                                                .opacity(0.3)
-                                            Text("+")
-                                                .font(.system(size: 140))
-                                                .fontWeight(.heavy)
-                                            
-                                        }
-                                    }
-                                } else {
-                                    ZStack(alignment: .bottomLeading){
-                                        Rectangle()
-                                            .frame(width: 459)
-                                            .cornerRadius(24)
-                                            .foregroundColor(.gray)
-                                            .opacity(0.3)
-                                        
-                                            .overlay(Rectangle()
-                                                .frame(width: 150, height: 200)
-                                                .cornerRadius(24)
-                                                .foregroundColor(.gray)
-                                                .opacity(0.3)
-                                                .padding(32), alignment: .bottomLeading)
-                                            .padding(.vertical, 32)
-                                    }
+                            NavigationLink(destination: StepOneView(
+                                currentOutfitIndex: $currentOutfitIndex
+                            )){
+                                ZStack{
+                                    Rectangle()
+                                        .frame(width: 500)
+                                        .cornerRadius(24)
+                                        .foregroundColor(Color("layer1"))
+                                    Circle()
+                                        .frame(width: 350, height: 350)
+                                        .foregroundColor(Color("layer2"))
+                                    Text("+")
+                                        .font(.system(size: 140))
+                                        .fontWeight(.heavy)
                                     
                                 }
+                            }.padding(.trailing)
+                            ForEach(0..<outfitViewModel.outfits.count){
+                                index in
+                                
+                                    ZStack(alignment: .bottomLeading){
+                                        Rectangle()
+                                            .frame(width: 500)
+                                            .cornerRadius(24)
+                                            .foregroundColor(Color("layer1"))
+                                        
+                                            .padding(.vertical, 32)
+                                        AvatarView(outfitModel: outfitViewModel.outfits[index])
+                                            .padding(.vertical, 72)
+                                        
+                                        Rectangle()
+                                            .frame(width: 150, height: 200)
+                                            .cornerRadius(24)
+                                            .foregroundColor(Color("layer2"))
+                                            .padding(32)
+                                            .offset(y: -32)
+                                    }
+                                    
+                                
                             }
                         }.padding(.horizontal, 64)
                             .padding(.bottom, 32)
                     }
                 }
             }
-        }.navigationViewStyle(StackNavigationViewStyle())
+        }
+        .navigationBarHidden(true)
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }

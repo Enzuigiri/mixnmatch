@@ -7,20 +7,6 @@
 
 import SwiftUI
 
-extension Color {
-    func toUIColor() -> UIColor {
-        let uiColor = UIColor(self)
-        return uiColor
-    }
-    
-    func toHSB() -> (h: CGFloat, s: CGFloat, b: CGFloat) {
-        let uiColor = self.toUIColor()
-        var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0, alpha: CGFloat = 0
-        uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
-        return (h: hue, s: saturation, b: brightness)
-    }
-}
-
 
 func generateComplementaryColors(baseColor: Color) -> [Color] {
     var colors: [Color] = []

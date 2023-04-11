@@ -8,10 +8,18 @@
 import SwiftUI
 
 struct StepThreeView: View {
+    @ObservedObject var outfitModel: OutfitModel
+//    @ObservedObject var characterViewModel: CharacterViewModel
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @State private var magnification: CGFloat = 1.0
+    @State private var scale: CGFloat = 1.0
+    @State private var offset = CGSize.zero
+    @State private var offsetAccumulated = CGSize.zero
+    
+    var outfitViewModel : OutfitViewModel = OutfitViewModel()
 
     var body: some View {
+        
         NavigationView(){
             GeometryReader{
                 geometry in
@@ -45,7 +53,11 @@ struct StepThreeView: View {
                                     .foregroundColor(.black)
                                     .cornerRadius(16)
                             }
-                            NavigationLink(destination : StepTwoView()){
+                            NavigationLink(destination : ContentView().onAppear{
+                                
+                                    print("trig save")
+                                    outfitViewModel.addOutfit(outfitModel)
+                            }){
                                 Text("Finish")
                                     .padding(.horizontal, 32)
                                     .frame(height: 60)
@@ -56,36 +68,31 @@ struct StepThreeView: View {
                             
                         }
                         Spacer()
-                        ZStack{
-                            Image("vector")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .padding()
-                                .blending(color: .gray)
-                                .scaleEffect(magnification)
-                        }
+                        AvatarView(outfitModel: outfitModel)
                         .frame(width: leftWidthBound)
-                        Spacer()
-                        VStack(spacing: 0){
-                            Button(action: {
-                                magnification = magnification + 0.1
-                            }) {
-                                Text("+")
-                                    .frame(width: 60,height: 60)
-                            }
-                            .background(Color("layer1"))
-                            .foregroundColor(.black)
-                            .customCornerRadius(16, corners: [.topLeft, .topRight])
+                        .scaleEffect(magnification)
+                        .offset(offset)
+                        .scaleEffect(magnification)
+                        .gesture(
+                            DragGesture()
+                                .onChanged{
+                                    gesture in
+                                    offset = gesture.translation
+                                    print(offset)
+                                }
+                                .onEnded{
+                                    value in
+                                    offset = offset
+
+                                }
                             
-                            Button(action: {
-                                magnification = magnification - 0.1
-                            }) {
-                                Text("-")
-                                    .frame(width: 60,height: 60)
-                            }.background(Color("layer2"))
-                                .foregroundColor(.black)
-                                .customCornerRadius(16, corners: [.bottomLeft, .bottomRight])
-                        }
+                        ).gesture(
+                            MagnificationGesture()
+                                .onChanged { value in
+                                    magnification = value
+                                }
+                        )
+                        
                     }.frame(width: leftWidthBound , height: geometry.size.height - 32)
                     Spacer()
                     //right
@@ -147,6 +154,6 @@ struct StepThreeView: View {
 
 struct StepThreeView_Previews: PreviewProvider {
     static var previews: some View {
-        StepThreeView()
+        StepThreeView(outfitModel: OutfitModel(id: nil))
     }
 }
